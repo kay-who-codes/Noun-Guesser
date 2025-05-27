@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noun Guesser Game</title>
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --dark-surface: #1e1e1e;
+            --green-accent: #4caf50;
+            --green-accent-dark: #2e7d32;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            color: var(--green-accent);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .game-card {
+            background-color: var(--dark-surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex: 1;
+        }
+        
+        .word-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--green-accent);
+            text-align: center;
+            margin: 1.5rem 0;
+            min-height: 60px;
+            text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+            letter-spacing: 1px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-box {
+            background-color: rgba(76, 175, 80, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            flex: 1;
+            max-width: 45%;
+        }
+        
+        .stat-box h3 {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-box p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--green-accent);
+        }
+        
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        button {
+            background-color: var(--green-accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        button:hover, button:focus {
+            background-color: var(--green-accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(76, 175, 80, 0.4);
+            outline: none;
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+        
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .game-over {
+            text-align: center;
+            display: none;
+        }
+        
+        .game-over h2 {
+            color: var(--green-accent);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .game-over p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .button-primary {
+            background-color: var(--green-accent);
+        }
+        
+        .button-secondary {
+            background-color: transparent;
+            border: 2px solid var(--green-accent);
+            color: var(--green-accent);
+        }
+        
+        .button-secondary:hover, .button-secondary:focus {
+            background-color: rgba(76, 175, 80, 0.2);
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .word-display {
+                font-size: 2rem;
+            }
+            
+            .stat-box p {
+                font-size: 1.5rem;
+            }
+            
+            .game-card {
+                padding: 1.5rem;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Noun Guesser</h1>
+            <p>Guess the displayed nouns before you run out of guesses!</p>
+        </div>
+        
+        <div class="game-card fade-in">
+            <div class="stats">
+                <div class="stat-box">
+                    <h3>Score</h3>
+                    <p id="score">0</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Guesses Left</h3>
+                    <p id="guesses">20</p>
+                </div>
+            </div>
+            
+            <div class="word-display" id="wordDisplay">Loading...</div>
+            
+            <div class="button-container">
+                <button id="correctBtn" class="button-primary">Correct! ✓</button>
+                <button id="skipBtn" class="button-secondary">Skip ⟳</button>
+            </div>
+        </div>
+        
+        <div class="game-over" id="gameOver">
+            <h2>Game Over!</h2>
+            <p>Your final score: <span id="finalScore">0</span></p>
+            <button id="playAgainBtn" class="button-primary">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let nouns = [];
+        let currentWord = '';
+        let score = 0;
+        let guessesLeft = 20;
+        let gameActive = true;
+        
+        // DOM elements
+        const wordDisplay = document.getElementById('wordDisplay');
+        const scoreDisplay = document.getElementById('score');
+        const guessesDisplay = document.getElementById('guesses');
+        const correctBtn = document.getElementById('correctBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        
+        // Get a random noun from the list
+        function getRandomNoun() {
+            const randomIndex = Math.floor(Math.random() * nouns.length);
+            return nouns[randomIndex];
+        }
+        
+        // Display a new word
+        function displayNewWord() {
+            currentWord = getRandomNoun();
+            wordDisplay.textContent = currentWord;
+            wordDisplay.classList.add('pulse');
+            setTimeout(() => {
+                wordDisplay.classList.remove('pulse');
+            }, 500);
+        }
+        
+        // Update the score
+        function updateScore() {
+            score++;
+            scoreDisplay.textContent = score;
+            scoreDisplay.classList.add('pulse');
+            setTimeout(() => {
+                scoreDisplay.classList.remove('pulse');
+            }, 500);
+        }
+        
+        // Update guesses left
+        function updateGuesses() {
+            guessesLeft--;
+            guessesDisplay.textContent = guessesLeft;
+            
+            if (guessesLeft <= 5) {
+                guessesDisplay.style.color = '#ff5252';
+                guessesDisplay.classList.add('shake');
+                setTimeout(() => {
+                    guessesDisplay.classList.remove('shake');
+                }, 500);
+            }
+            
+            if (guessesLeft <= 0) {
+                endGame();
+            }
+        }
+        
+        // End the game
+        function endGame() {
+            gameActive = false;
+            document.querySelector('.game-card').style.display = 'none';
+            gameOverScreen.style.display = 'block';
+            gameOverScreen.classList.add('fade-in');
+            finalScoreDisplay.textContent = score;
+        }
+        
+        // Reset the game
+        function resetGame() {
+            score = 0;
+            guessesLeft = 20;
+            gameActive = true;
+            
+            scoreDisplay.textContent = score;
+            guessesDisplay.textContent = guessesLeft;
+            guessesDisplay.style.color = var(--green-accent);
+            
+            document.querySelector('.game-card').style.display = 'flex';
+            gameOverScreen.style.display = 'none';
+            
+            displayNewWord();
+        }
+        
+        // Event listeners
+        correctBtn.addEventListener('click', () => {
+            if (!gameActive) return;
+            
+            updateScore();
+            displayNewWord();
+        });
+        
+        skipBtn.addEventListener('click', () => {
+            if (!gameActive) return;
+            
+            updateGuesses();
+            displayNewWord();
+        });
+        
+        playAgainBtn.addEventListener('click', resetGame);
+        
+        // Initialize the game
+        fetchNouns();
+        
+        // Fetch nouns from JSON file
+        async function fetchNouns() {
+            try {
+                wordDisplay.textContent = "Loading nouns...";
+                const response = await fetch('nouns.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load nouns');
+                }
+                nouns = await response.json();
+                displayNewWord();
+            } catch (error) {
+                console.error('Error loading nouns:', error);
+                wordDisplay.textContent = "Error loading nouns!";
+            }
+        }
+    </script>
+</body>
+</html>
